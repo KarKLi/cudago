@@ -55,7 +55,6 @@ import (
 	"runtime"
 	"strconv"
 	"syscall"
-	"unsafe"
 
 	"github.com/karkli/cudago"
 )
@@ -83,8 +82,9 @@ type CudaRTLib struct {
 // NewCudaLib returns a CudaRTLib with specified cuda dynamic library
 func NewCudaRTLib(d *syscall.DLL) *CudaRTLib {
 	// 先确认当前传入的d是否加载的10.0版本的cuda dll，否则报错
+	caller := NewCUDAWindowsCall(d)
 	var runtimeVersion int
-	r1, err := callCUDAFuncRetInt(d, "cudaRuntimeGetVersion", uintptr(unsafe.Pointer(&runtimeVersion)))
+	r1, err := caller.CallCUDAFuncRetInt("cudaRuntimeGetVersion", &runtimeVersion)
 	if err != nil {
 		panic(err)
 	}
@@ -97,116 +97,4 @@ func NewCudaRTLib(d *syscall.DLL) *CudaRTLib {
 	return &CudaRTLib{
 		d: d,
 	}
-}
-
-// CudaFree - CUDA library host function
-//
-// cudaError_t cudaDeviceReset(void);
-func (l *CudaRTLib) CudaDeviceReset() error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceReset")
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaDeviceReset error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaDeviceSynchronize - CUDA library host function
-//
-// cudaError_t cudaDeviceSynchronize(void);
-func (l *CudaRTLib) CudaDeviceSynchronize() error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceSynchronize")
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaDeviceSynchronize error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaDeviceSetLimit - CUDA library host function
-//
-// cudaError_t cudaDeviceSetLimit(enum cudaLimit limit, size_t value);
-func (l *CudaRTLib) CudaDeviceSetLimit(limit cudago.CudaLimit, value uint64) error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceSetLimit", uintptr(limit), uintptr(value))
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaDeviceSetLimit error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaDeviceGetLimit - CUDA library host function
-//
-// cudaError_t cudaDeviceGetLimit(size_t *pValue, enum cudaLimit limit);
-func (l *CudaRTLib) CudaDeviceGetLimit(pValue *uint64, limit cudago.CudaLimit) error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceGetLimit", uintptr(unsafe.Pointer(pValue)), uintptr(limit))
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaDeviceSetLimit error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaDeviceGetCacheConfig - CUDA library host function
-//
-// cudaError_t cudaDeviceGetCacheConfig(enum cudaFuncCache *pCacheConfig);
-func (l *CudaRTLib) CudaDeviceGetCacheConfig(pCacheConfig *cudago.CudaFuncCache) error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceGetCacheConfig", uintptr(unsafe.Pointer(pCacheConfig)))
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaDeviceSetLimit error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaMalloc - CUDA library host function
-//
-// cudaError_t cudaMalloc(void **devPtr, size_t size);
-func (l *CudaRTLib) CudaMalloc(devPtr VoidPtrPtr, size uint64) error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaMalloc", uintptr(devPtr), uintptr(size))
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaMalloc error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaMemcpy - CUDA library host function
-//
-// cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind);
-func (l *CudaRTLib) CudaMemcpy(dst VoidPtr, src VoidPtr, count uint64, kind cudago.CUDAMemcpyKind) error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaMemcpy", uintptr(dst), uintptr(src), uintptr(count), uintptr(kind))
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaMemcpy error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
-}
-
-// CudaFree - CUDA library host function
-//
-// cudaError_t cudaFree(void *devPtr);
-func (l *CudaRTLib) CudaFree(devPtr VoidPtr) error {
-	r1, err := callCUDAFuncRetInt(l.d, "cudaFree", uintptr(devPtr))
-	if err != nil {
-		return err
-	}
-	if r1 != 0 {
-		return fmt.Errorf("cudaFree error: %v", cudaErrorHandler(l, CUDAError_t(r1)))
-	}
-	return nil
 }

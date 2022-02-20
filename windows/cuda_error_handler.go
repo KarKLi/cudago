@@ -8,14 +8,16 @@ import (
 //
 // const char* cudaGetErrorName(cudaError_t error);
 func (l *CudaRTLib) CudaGetErrorName(errCode CUDAError_t) (string, error) {
-	return callCUDAFuncRetString(l.d, "cudaGetErrorName", uintptr(errCode))
+	caller := NewCUDAWindowsCall(l.d)
+	return caller.CallCUDAFuncRetString("cudaGetErrorName", errCode)
 }
 
 // CudaGetErrorString - CUDA library host function
 //
 // const char* cudaGetErrorString(cudaError_t error);
 func (l *CudaRTLib) CudaGetErrorString(errCode CUDAError_t) (string, error) {
-	return callCUDAFuncRetString(l.d, "cudaGetErrorString", uintptr(errCode))
+	caller := NewCUDAWindowsCall(l.d)
+	return caller.CallCUDAFuncRetString("cudaGetErrorString", errCode)
 }
 
 func cudaErrorHandler(l *CudaRTLib, errCode CUDAError_t) error {

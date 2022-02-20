@@ -11,6 +11,7 @@ type CudaError struct {
 	ErrMsg  string
 }
 
+// Error CudaError implments error interface.
 func (e *CudaError) Error() string {
 	return fmt.Sprintf("errcode: %d(%s), errmsg: %s", e.ErrCode, e.ErrName, e.ErrMsg)
 }

@@ -4,10 +4,16 @@ import (
 	"github.com/karkli/cudago"
 )
 
+// CudaGetErrorName - CUDA library host function
+//
+// const char* cudaGetErrorName(cudaError_t error);
 func (l *CudaRTLib) CudaGetErrorName(errCode CUDAError_t) (string, error) {
 	return callCUDAFuncRetString(l.d, "cudaGetErrorName", uintptr(errCode))
 }
 
+// CudaGetErrorString - CUDA library host function
+//
+// const char* cudaGetErrorString(cudaError_t error);
 func (l *CudaRTLib) CudaGetErrorString(errCode CUDAError_t) (string, error) {
 	return callCUDAFuncRetString(l.d, "cudaGetErrorString", uintptr(errCode))
 }

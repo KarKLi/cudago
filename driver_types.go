@@ -1,5 +1,6 @@
 package cudago
 
+// CUDAMemcpyKind - CUDA library enum type cudaMemcpyKind
 type CUDAMemcpyKind int
 
 const (
@@ -10,6 +11,7 @@ const (
 	CUDAMemcpyDefault        = CUDAMemcpyKind(4) /**< Direction of the traμsfer is inferred from the pointer values. Requires unified virtual addressing */
 )
 
+// CudaLimit - CUDA library enum type cudaLimit
 type CudaLimit int
 
 const (

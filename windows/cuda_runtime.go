@@ -49,6 +49,9 @@ func NewCudaRTLib(d *syscall.DLL) *CudaRTLib {
 	}
 }
 
+// CudaDeviceSynchronize - CUDA library host function
+//
+// cudaError_t cudaDeviceSynchronize(void);
 func (l *CudaRTLib) CudaDeviceSynchronize() error {
 	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceSynchronize")
 	if err != nil {
@@ -60,6 +63,9 @@ func (l *CudaRTLib) CudaDeviceSynchronize() error {
 	return nil
 }
 
+// CudaDeviceSetLimit - CUDA library host function
+//
+// cudaError_t cudaDeviceSetLimit(enum cudaLimit limit, size_t value);
 func (l *CudaRTLib) CudaDeviceSetLimit(limit cudago.CudaLimit, value uint64) error {
 	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceSetLimit", uintptr(limit), uintptr(value))
 	if err != nil {
@@ -71,6 +77,9 @@ func (l *CudaRTLib) CudaDeviceSetLimit(limit cudago.CudaLimit, value uint64) err
 	return nil
 }
 
+// CudaMalloc - CUDA library host function
+//
+// cudaError_t cudaMalloc(void **devPtr, size_t size);
 func (l *CudaRTLib) CudaMalloc(devPtr VoidPtrPtr, size uint64) error {
 	r1, err := callCUDAFuncRetInt(l.d, "cudaMalloc", uintptr(devPtr), uintptr(size))
 	if err != nil {
@@ -82,6 +91,9 @@ func (l *CudaRTLib) CudaMalloc(devPtr VoidPtrPtr, size uint64) error {
 	return nil
 }
 
+// CudaMemcpy - CUDA library host function
+//
+// cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind);
 func (l *CudaRTLib) CudaMemcpy(dst VoidPtr, src VoidPtr, count uint64, kind cudago.CUDAMemcpyKind) error {
 	r1, err := callCUDAFuncRetInt(l.d, "cudaMemcpy", uintptr(dst), uintptr(src), uintptr(count), uintptr(kind))
 	if err != nil {
@@ -93,6 +105,9 @@ func (l *CudaRTLib) CudaMemcpy(dst VoidPtr, src VoidPtr, count uint64, kind cuda
 	return nil
 }
 
+// CudaFree - CUDA library host function
+//
+// cudaError_t cudaFree(void *devPtr);
 func (l *CudaRTLib) CudaFree(devPtr VoidPtr) error {
 	r1, err := callCUDAFuncRetInt(l.d, "cudaFree", uintptr(devPtr))
 	if err != nil {
@@ -104,6 +119,9 @@ func (l *CudaRTLib) CudaFree(devPtr VoidPtr) error {
 	return nil
 }
 
+// CudaFree - CUDA library host function
+//
+// cudaError_t cudaDeviceReset(void);
 func (l *CudaRTLib) CudaDeviceReset() error {
 	r1, err := callCUDAFuncRetInt(l.d, "cudaDeviceReset")
 	if err != nil {

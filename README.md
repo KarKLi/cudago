@@ -21,6 +21,4 @@ Support OS and arch are shown at below table:
 | Windows/arm64 | not test           |
 | Linux/amd64   | not test           |
 
-Current Main branch support for CUDA v10.0.
-
 *karkli, mail: <karkli@tencent.com>*

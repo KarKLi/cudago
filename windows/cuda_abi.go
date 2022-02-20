@@ -70,7 +70,7 @@ func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) 
 			callP = append(callP, reflect.ValueOf(t).Pointer())
 		case reflect.String:
 			// convert it into *byte
-			b, err := syscall.BytePtrFromString(t.(string))
+			b, err := syscall.BytePtrFromString(reflect.ValueOf(t).String())
 			if err != nil {
 				return 0, fmt.Errorf("not valid string %v", t)
 			}
@@ -107,7 +107,7 @@ func (c *cudaWindowsCall) CallCUDAFuncRetString(funcName string, p ...interface{
 			callP = append(callP, reflect.ValueOf(t).Pointer())
 		case reflect.String:
 			// convert it into *byte
-			b, err := syscall.BytePtrFromString(t.(string))
+			b, err := syscall.BytePtrFromString(reflect.ValueOf(t).String())
 			if err != nil {
 				return "", fmt.Errorf("not valid string %v", t)
 			}

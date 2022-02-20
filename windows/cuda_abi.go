@@ -16,13 +16,27 @@ type cudaWindowsCall struct {
 	d *syscall.DLL
 }
 
+// NewCUDAWindowsCall returns a CudaCall interface with loaded CUDA dynamic library
 func NewCUDAWindowsCall(d *syscall.DLL) cudago.CudaCall {
-	return &cudaWindowsCall{
+	// 先确认当前传入的d是否加载的10.0版本的cuda dll，否则报错
+	caller := &cudaWindowsCall{
 		d: d,
 	}
+	var runtimeVersion int
+	r1, err := caller.CallCUDAFuncRetInt("cudaRuntimeGetVersion", &runtimeVersion)
+	if err != nil {
+		panic(err)
+	}
+	if r1 != 0 {
+		panic(cudaErrorHandler(caller, CUDAError_t(r1)))
+	}
+	if runtimeVersion != cudago.Version() {
+		panic(fmt.Sprintf("cuda version not match, wants: %d, library returns: %d", cudago.Version(), runtimeVersion))
+	}
+	return caller
 }
 
-// callCUDAFuncRetInt Call CUDA function with return value of type int (equals to C type int or enum)
+// CallCUDAFuncRetInt Call CUDA function with return value of type int (equals to C type int or enum)
 func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) (r int, err error) {
 	proc := c.d.MustFindProc(funcName)
 	var callP []uintptr
@@ -60,7 +74,7 @@ func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) 
 	return int(r1), nil
 }
 
-// callCUDAFuncRetString Call CUDA function with return value of type string (equals to C type char * or const char *)
+// CallCUDAFuncRetString Call CUDA function with return value of type string (equals to C type char * or const char *)
 func (c *cudaWindowsCall) CallCUDAFuncRetString(funcName string, p ...interface{}) (r string, err error) {
 	proc := c.d.MustFindProc(funcName)
 	var callP []uintptr

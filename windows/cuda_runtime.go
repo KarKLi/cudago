@@ -51,12 +51,8 @@
 package windows
 
 import (
-	"fmt"
 	"runtime"
 	"strconv"
-	"syscall"
-
-	"github.com/karkli/cudago"
 )
 
 func init() {
@@ -73,28 +69,3 @@ type VoidPtr uintptr
 
 // VoidPtrPtr for C type void **
 type VoidPtrPtr uintptr
-
-// CudaRTLib wraps a runtime dynamic library of CUDA
-type CudaRTLib struct {
-	d *syscall.DLL
-}
-
-// NewCudaLib returns a CudaRTLib with specified cuda dynamic library
-func NewCudaRTLib(d *syscall.DLL) *CudaRTLib {
-	// 先确认当前传入的d是否加载的10.0版本的cuda dll，否则报错
-	caller := NewCUDAWindowsCall(d)
-	var runtimeVersion int
-	r1, err := caller.CallCUDAFuncRetInt("cudaRuntimeGetVersion", &runtimeVersion)
-	if err != nil {
-		panic(err)
-	}
-	if r1 != 0 {
-		panic(cudaErrorHandler(&CudaRTLib{d}, CUDAError_t(r1)))
-	}
-	if runtimeVersion != cudago.Version() {
-		panic(fmt.Sprintf("cuda version not match, wants: %d, library returns: %d", cudago.Version(), runtimeVersion))
-	}
-	return &CudaRTLib{
-		d: d,
-	}
-}

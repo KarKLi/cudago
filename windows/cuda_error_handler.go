@@ -7,25 +7,23 @@ import (
 // CudaGetErrorName - CUDA library host function
 //
 // const char* cudaGetErrorName(cudaError_t error);
-func (l *CudaRTLib) CudaGetErrorName(errCode CUDAError_t) (string, error) {
-	caller := NewCUDAWindowsCall(l.d)
-	return caller.CallCUDAFuncRetString("cudaGetErrorName", errCode)
+func (c *cudaWindowsCall) CudaGetErrorName(errCode CUDAError_t) (string, error) {
+	return c.CallCUDAFuncRetString("cudaGetErrorName", errCode)
 }
 
 // CudaGetErrorString - CUDA library host function
 //
 // const char* cudaGetErrorString(cudaError_t error);
-func (l *CudaRTLib) CudaGetErrorString(errCode CUDAError_t) (string, error) {
-	caller := NewCUDAWindowsCall(l.d)
-	return caller.CallCUDAFuncRetString("cudaGetErrorString", errCode)
+func (c *cudaWindowsCall) CudaGetErrorString(errCode CUDAError_t) (string, error) {
+	return c.CallCUDAFuncRetString("cudaGetErrorString", errCode)
 }
 
-func cudaErrorHandler(l *CudaRTLib, errCode CUDAError_t) error {
-	errName, err := l.CudaGetErrorName(errCode)
+func cudaErrorHandler(c *cudaWindowsCall, errCode CUDAError_t) error {
+	errName, err := c.CudaGetErrorName(errCode)
 	if err != nil {
 		panic(err)
 	}
-	msg, err := l.CudaGetErrorString(errCode)
+	msg, err := c.CudaGetErrorString(errCode)
 	if err != nil {
 		panic(err)
 	}

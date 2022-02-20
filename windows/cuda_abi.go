@@ -45,7 +45,7 @@ func newCUDAWindowsCall(d *syscall.DLL) cudago.CudaCall {
 		panic(err)
 	}
 	if r1 != 0 {
-		panic(cudaErrorHandler(caller, CUDAError_t(r1)))
+		panic(CUDAErrorHandler(caller, CUDAError_t(r1)))
 	}
 	if runtimeVersion != cudago.Version() {
 		panic(fmt.Sprintf("cuda version not match, wants: %d, library returns: %d", cudago.Version(), runtimeVersion))
@@ -61,14 +61,12 @@ func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) 
 	for _, t := range p {
 		switch reflect.TypeOf(t).Kind() {
 		case reflect.Int, reflect.Int64:
-			callP = append(callP, uintptr(t.(int64)))
-		case reflect.Uint, reflect.Uint64:
-			callP = append(callP, uintptr(t.(uint64)))
-		case reflect.Uintptr:
-			callP = append(callP, t.(uintptr))
+			callP = append(callP, uintptr(reflect.ValueOf(t).Int()))
+		case reflect.Uint, reflect.Uint64, reflect.Uintptr:
+			callP = append(callP, uintptr(reflect.ValueOf(t).Uint()))
 		case reflect.Float64:
-			callP = append(callP, uintptr(t.(float64)))
-		case reflect.Slice, reflect.Ptr:
+			callP = append(callP, uintptr(reflect.ValueOf(t).Float()))
+		case reflect.Slice, reflect.Ptr, reflect.UnsafePointer:
 			callP = append(callP, reflect.ValueOf(t).Pointer())
 		case reflect.String:
 			// convert it into *byte
@@ -77,9 +75,10 @@ func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) 
 				return 0, fmt.Errorf("not valid string %v", t)
 			}
 			callP = append(callP, uintptr(unsafe.Pointer(b)))
-		case reflect.Struct, reflect.UnsafePointer:
-			callP = append(callP, reflect.ValueOf(t).UnsafeAddr())
 		default:
+			// We don't support bool, complex, array, chan, func, interface, map, struct for compatiablity.
+			// bool is not support for C language.
+			// and struct will cause unknown variable length, causing stack crash.
 			return 0, fmt.Errorf("not supported type: %v", reflect.TypeOf(t).Kind())
 		}
 	}
@@ -99,14 +98,12 @@ func (c *cudaWindowsCall) CallCUDAFuncRetString(funcName string, p ...interface{
 	for _, t := range p {
 		switch reflect.TypeOf(t).Kind() {
 		case reflect.Int, reflect.Int64:
-			callP = append(callP, uintptr(t.(int64)))
-		case reflect.Uint, reflect.Uint64:
-			callP = append(callP, uintptr(t.(uint64)))
-		case reflect.Uintptr:
-			callP = append(callP, t.(uintptr))
+			callP = append(callP, uintptr(reflect.ValueOf(t).Int()))
+		case reflect.Uint, reflect.Uint64, reflect.Uintptr:
+			callP = append(callP, uintptr(reflect.ValueOf(t).Uint()))
 		case reflect.Float64:
-			callP = append(callP, uintptr(t.(float64)))
-		case reflect.Slice, reflect.Ptr:
+			callP = append(callP, uintptr(reflect.ValueOf(t).Float()))
+		case reflect.Slice, reflect.Ptr, reflect.UnsafePointer:
 			callP = append(callP, reflect.ValueOf(t).Pointer())
 		case reflect.String:
 			// convert it into *byte
@@ -115,9 +112,10 @@ func (c *cudaWindowsCall) CallCUDAFuncRetString(funcName string, p ...interface{
 				return "", fmt.Errorf("not valid string %v", t)
 			}
 			callP = append(callP, uintptr(unsafe.Pointer(b)))
-		case reflect.Struct, reflect.UnsafePointer:
-			callP = append(callP, reflect.ValueOf(t).UnsafeAddr())
 		default:
+			// We don't support bool, complex, array, chan, func, interface, map, struct for compatiablity.
+			// bool is not support for C language.
+			// and struct will cause unknown variable length, causing stack crash.
 			return "", fmt.Errorf("not supported type: %v", reflect.TypeOf(t).Kind())
 		}
 	}

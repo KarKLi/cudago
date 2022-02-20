@@ -2,6 +2,8 @@ package windows
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"reflect"
 	"syscall"
 	"unsafe"
@@ -16,9 +18,24 @@ type cudaWindowsCall struct {
 	d *syscall.DLL
 }
 
-// NewCUDAWindowsCall returns a CudaCall interface with loaded CUDA dynamic library
-func NewCUDAWindowsCall(d *syscall.DLL) cudago.CudaCall {
-	// 先确认当前传入的d是否加载的10.0版本的cuda dll，否则报错
+// NewCUDAWindowsCall returns a CudaCall interface with loading CUDA dynamic library automatically.
+//
+// If failed, NewCUDAWindowsCall returns nil or panic.
+func NewCUDAWindowsCall(libraryPath string) cudago.CudaCall {
+	// find library
+	if len(libraryPath) == 0 {
+		if c := os.Getenv("CUDA_PATH"); len(c) == 0 {
+			return nil
+		} else {
+			libraryPath = path.Join(c, "bin/cudart64_100.dll")
+		}
+	}
+	d := syscall.MustLoadDLL(libraryPath)
+	return newCUDAWindowsCall(d)
+}
+
+// newCUDAWindowsCall returns a CudaCall interface with loaded CUDA dynamic library
+func newCUDAWindowsCall(d *syscall.DLL) cudago.CudaCall {
 	caller := &cudaWindowsCall{
 		d: d,
 	}
@@ -39,7 +56,7 @@ func NewCUDAWindowsCall(d *syscall.DLL) cudago.CudaCall {
 // CallCUDAFuncRetInt Call CUDA function with return value of type int (equals to C type int or enum)
 func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) (r int, err error) {
 	proc := c.d.MustFindProc(funcName)
-	var callP []uintptr
+	callP := make([]uintptr, 0, len(p))
 	// use reflect for type
 	for _, t := range p {
 		switch reflect.TypeOf(t).Kind() {
@@ -77,7 +94,7 @@ func (c *cudaWindowsCall) CallCUDAFuncRetInt(funcName string, p ...interface{}) 
 // CallCUDAFuncRetString Call CUDA function with return value of type string (equals to C type char * or const char *)
 func (c *cudaWindowsCall) CallCUDAFuncRetString(funcName string, p ...interface{}) (r string, err error) {
 	proc := c.d.MustFindProc(funcName)
-	var callP []uintptr
+	callP := make([]uintptr, 0, len(p))
 	// use reflect for type
 	for _, t := range p {
 		switch reflect.TypeOf(t).Kind() {

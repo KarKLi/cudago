@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/karkli/cudago"
+	"github.com/KarKLi/cudago"
 )
 
 // CUDAError_t CUDA error type

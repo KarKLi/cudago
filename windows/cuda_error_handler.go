@@ -1,7 +1,7 @@
 package windows
 
 import (
-	"github.com/karkli/cudago"
+	"github.com/KarKLi/cudago"
 )
 
 // CudaGetErrorName - CUDA library host function

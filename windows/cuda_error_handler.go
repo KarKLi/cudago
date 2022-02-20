@@ -18,7 +18,12 @@ func (c *cudaWindowsCall) CudaGetErrorString(errCode CUDAError_t) (string, error
 	return c.CallCUDAFuncRetString("cudaGetErrorString", errCode)
 }
 
-func cudaErrorHandler(c *cudaWindowsCall, errCode CUDAError_t) error {
+func CUDAErrorHandler(caller cudago.CudaCall, errCode CUDAError_t) error {
+	var c *cudaWindowsCall
+	var ok bool
+	if c, ok = caller.(*cudaWindowsCall); !ok {
+		panic("caller not cudaWindowsCall")
+	}
 	errName, err := c.CudaGetErrorName(errCode)
 	if err != nil {
 		panic(err)

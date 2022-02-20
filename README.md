@@ -2,6 +2,8 @@
 
 <img src="https://go.dev/images/gophers/pilot-bust.svg" alt="go mascot" style="zoom:30%;" />
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/KarKLi/cudago.svg)](https://pkg.go.dev/github.com/KarKLi/cudago)
+
 See [CUDA official page](https://developer.nvidia.cn/zh-cn/cuda-toolkit) for CUDA library info and doc.
 
 cudago use dynamic library function calls for Go developers run CUDA with Go's other features.

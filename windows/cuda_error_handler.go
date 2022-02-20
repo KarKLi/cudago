@@ -18,6 +18,7 @@ func (c *cudaWindowsCall) CudaGetErrorString(errCode CUDAError_t) (string, error
 	return c.CallCUDAFuncRetString("cudaGetErrorString", errCode)
 }
 
+// CUDAErrorHandler return CudaError match for errcode
 func CUDAErrorHandler(caller cudago.CudaCall, errCode CUDAError_t) error {
 	var c *cudaWindowsCall
 	var ok bool
